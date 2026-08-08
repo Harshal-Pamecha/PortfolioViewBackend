@@ -9,7 +9,6 @@ import com.portfolio.repository.UserRepository;
 import com.portfolio.repository.TransactionRepository;
 import com.portfolio.repository.TickerRepository;
 import com.portfolio.security.UserContext;
-import com.portfolio.service.CurrencyService;
 import com.portfolio.entity.Currency;
 import com.portfolio.event.PortfolioChangedEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -168,14 +167,18 @@ public class HoldingServiceImpl implements HoldingService {
             tickerRepository.findByTicker(holding.getTickerSymbol())
                 .ifPresent(ticker -> {
                     if (ticker.getCompanyName() != null && !ticker.getCompanyName().isEmpty()) {
-                        holding.setName(ticker.getCompanyName());
+                        existing.setName(ticker.getCompanyName());
                     }
                 });
+            existing.setTickerSymbol(holding.getTickerSymbol());
         }
         
-        holding.setId(id);
-        holding.setUser(existing.getUser());
-        Holding savedHolding = repository.save(holding);
+        if (holding.getQuantity() != null) existing.setQuantity(holding.getQuantity());
+        if (holding.getAvgBuyPrice() != null) existing.setAvgBuyPrice(holding.getAvgBuyPrice());
+        if (holding.getPurchaseDate() != null) existing.setPurchaseDate(holding.getPurchaseDate());
+        if (holding.getNotes() != null) existing.setNotes(holding.getNotes());
+
+        Holding savedHolding = repository.save(existing);
         
         eventPublisher.publishEvent(new PortfolioChangedEvent(userId));
         

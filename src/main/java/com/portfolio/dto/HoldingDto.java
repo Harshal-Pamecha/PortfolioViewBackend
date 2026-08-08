@@ -17,7 +17,9 @@ public record HoldingDto(
     String tickerSymbol,
     HoldingAccountDto account,
     String countryCode,
-    Boolean longTerm
+    Boolean longTerm,
+    LocalDate purchaseDate,
+    String notes
 ) {
     public static HoldingDto from(Holding holding) {
         if (holding == null) return null;
@@ -33,7 +35,9 @@ public record HoldingDto(
             holding.getTickerSymbol(),
             HoldingAccountDto.from(holding.getAccount()),
             holding.getCountryCode(),
-            calculateIsLongTerm(holding)
+            calculateIsLongTerm(holding),
+            holding.getPurchaseDate(),
+            holding.getNotes()
         );
     }
 
