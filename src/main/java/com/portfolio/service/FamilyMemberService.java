@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import com.portfolio.entity.Currency;
 
 /**
  * Service layer for FamilyMember entity business logic.
@@ -26,17 +27,30 @@ public class FamilyMemberService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final CurrencyService currencyService;
 
     /**
      * Helper to compute dynamic balance based on BANK and WALLET accounts.
      * Fallback to stored balance if no cash accounts exist.
      */
-    private BigDecimal calculateDynamicBalance(Integer familyMemberId, Integer userId, BigDecimal dbBalance) {
+    private BigDecimal calculateDynamicBalance(Integer familyMemberId, Integer userId, BigDecimal dbBalance, Currency targetCurrency) {
         List<AccountType> cashTypes = List.of(AccountType.BANK, AccountType.WALLET);
-        boolean hasCashAccounts = accountRepository.existsByFamilyMemberIdAndUserIdAndTypeIn(familyMemberId, userId, cashTypes);
-        if (hasCashAccounts) {
-            BigDecimal sum = accountRepository.sumBalanceByFamilyMemberIdAndUserIdAndTypes(familyMemberId, userId, cashTypes);
-            return sum != null ? sum : BigDecimal.ZERO;
+        List<Account> cashAccounts = accountRepository.findByFamilyMemberIdAndUserIdAndTypeIn(familyMemberId, userId, cashTypes);
+        
+        if (!cashAccounts.isEmpty()) {
+            BigDecimal sum = BigDecimal.ZERO;
+            for (Account acc : cashAccounts) {
+                Currency accCurrency = acc.getCurrency() != null ? acc.getCurrency() : targetCurrency;
+                BigDecimal accBalance = acc.getBalance() != null ? acc.getBalance() : BigDecimal.ZERO;
+                
+                if (targetCurrency != null && accCurrency != targetCurrency) {
+                    BigDecimal converted = currencyService.convert(accBalance, accCurrency, targetCurrency);
+                    sum = sum.add(converted);
+                } else {
+                    sum = sum.add(accBalance);
+                }
+            }
+            return sum;
         }
         return dbBalance != null ? dbBalance : BigDecimal.ZERO;
     }
@@ -54,7 +68,7 @@ public class FamilyMemberService {
         }
         List<FamilyMember> members = repository.findByUserId(userId);
         for (FamilyMember member : members) {
-            member.setBalance(calculateDynamicBalance(member.getId(), userId, member.getBalance()));
+            member.setBalance(calculateDynamicBalance(member.getId(), userId, member.getBalance(), member.getCurrency()));
         }
         return members;
     }
@@ -73,7 +87,7 @@ public class FamilyMemberService {
             throw new SecurityException("User is not authenticated");
         }
         FamilyMember member = repository.findByIdAndUserId(id, userId).orElseThrow();
-        member.setBalance(calculateDynamicBalance(member.getId(), userId, member.getBalance()));
+        member.setBalance(calculateDynamicBalance(member.getId(), userId, member.getBalance(), member.getCurrency()));
         return member;
     }
 
@@ -175,7 +189,7 @@ public class FamilyMemberService {
         }
         
         FamilyMember savedMember = repository.save(existing);
-        savedMember.setBalance(calculateDynamicBalance(id, userId, savedMember.getBalance()));
+        savedMember.setBalance(calculateDynamicBalance(id, userId, savedMember.getBalance(), savedMember.getCurrency()));
         return savedMember;
     }
 
