@@ -27,5 +27,8 @@ public enum HoldingCategory {
     DERIVATIVE,
 
     /** Commodity holdings. */
-    COMMODITY
+    COMMODITY,
+
+    /** Miscellaneous holdings. */
+    MISCELLANEOUS
 }
