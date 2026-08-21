@@ -89,7 +89,10 @@ public class FamilyMemberService {
         if (userId == null) {
             throw new SecurityException("User is not authenticated");
         }
-        if (repository.existsByUserIdAndNameIgnoreCase(userId, familyMember.getName())) {
+        List<FamilyMember> existingMembers = repository.findByUserId(userId);
+        boolean exists = existingMembers.stream()
+            .anyMatch(m -> m.getName().equalsIgnoreCase(familyMember.getName()));
+        if (exists) {
             throw new IllegalArgumentException("A family member with this name already exists.");
         }
         User user = userRepository.findById(userId)
@@ -132,12 +135,12 @@ public class FamilyMemberService {
             throw new SecurityException("User is not authenticated");
         }
         
-        repository.findByUserIdAndNameIgnoreCase(userId, familyMember.getName())
-                .ifPresent(existingMember -> {
-                    if (!existingMember.getId().equals(id)) {
-                        throw new IllegalArgumentException("A family member with this name already exists.");
-                    }
-                });
+        List<FamilyMember> existingMembers = repository.findByUserId(userId);
+        boolean exists = existingMembers.stream()
+            .anyMatch(m -> !m.getId().equals(id) && m.getName().equalsIgnoreCase(familyMember.getName()));
+        if (exists) {
+            throw new IllegalArgumentException("A family member with this name already exists.");
+        }
 
         FamilyMember existing = repository.findByIdAndUserId(id, userId).orElseThrow();
         existing.setName(familyMember.getName());

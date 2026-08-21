@@ -139,7 +139,7 @@ public class TransactionService {
 
         // If money is coming from a source account, subtract it
         if (sourceAccount != null) {
-            Currency accountCurrency = sourceAccount.getFamilyMember() != null && sourceAccount.getFamilyMember().getCurrency() != null ? sourceAccount.getFamilyMember().getCurrency() : Currency.INR;
+            Currency accountCurrency = sourceAccount.getCurrency() != null ? sourceAccount.getCurrency() : (sourceAccount.getFamilyMember() != null && sourceAccount.getFamilyMember().getCurrency() != null ? sourceAccount.getFamilyMember().getCurrency() : Currency.INR);
             BigDecimal localAmount = currencyService.convert(amount, txCurrency, accountCurrency);
 
             if (sourceAccount.getType() == AccountType.BANK || sourceAccount.getType() == AccountType.WALLET) {
@@ -170,7 +170,7 @@ public class TransactionService {
 
         // If money is going into a destination account, add it
         if (destAccount != null) {
-            Currency accountCurrency = destAccount.getFamilyMember() != null && destAccount.getFamilyMember().getCurrency() != null ? destAccount.getFamilyMember().getCurrency() : Currency.INR;
+            Currency accountCurrency = destAccount.getCurrency() != null ? destAccount.getCurrency() : (destAccount.getFamilyMember() != null && destAccount.getFamilyMember().getCurrency() != null ? destAccount.getFamilyMember().getCurrency() : Currency.INR);
             BigDecimal localAmount = currencyService.convert(amount, txCurrency, accountCurrency);
 
             if (destAccount.getType() == AccountType.BANK || destAccount.getType() == AccountType.WALLET) {
@@ -219,11 +219,13 @@ public class TransactionService {
             }
         }
 
-        if (source != null && source.getFamilyMember() != null && source.getFamilyMember().getCurrency() != null) {
-            return source.getFamilyMember().getCurrency();
+        if (source != null) {
+            if (source.getCurrency() != null) return source.getCurrency();
+            if (source.getFamilyMember() != null && source.getFamilyMember().getCurrency() != null) return source.getFamilyMember().getCurrency();
         }
-        if (dest != null && dest.getFamilyMember() != null && dest.getFamilyMember().getCurrency() != null) {
-            return dest.getFamilyMember().getCurrency();
+        if (dest != null) {
+            if (dest.getCurrency() != null) return dest.getCurrency();
+            if (dest.getFamilyMember() != null && dest.getFamilyMember().getCurrency() != null) return dest.getFamilyMember().getCurrency();
         }
         if (transaction.getUser() != null && transaction.getUser().getBaseCurrency() != null) {
             return transaction.getUser().getBaseCurrency();

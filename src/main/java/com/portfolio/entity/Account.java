@@ -58,6 +58,11 @@ public class Account {
     @Column(length = 20)
     private AccountType type = AccountType.OTHER;
 
+    /** The currency of the account (for bank/wallet). */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Currency currency;
+
     /** The balance present in this account. */
     @Column(precision = 15, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;

@@ -134,8 +134,12 @@ public class PortfolioSnapshotService {
             
             // Determine holding currency
             Currency hCurr = Currency.INR;
-            if (h.getAccount() != null && h.getAccount().getFamilyMember() != null && h.getAccount().getFamilyMember().getCurrency() != null) {
-                hCurr = h.getAccount().getFamilyMember().getCurrency();
+            if (h.getAccount() != null) {
+                if (h.getAccount().getCurrency() != null) {
+                    hCurr = h.getAccount().getCurrency();
+                } else if (h.getAccount().getFamilyMember() != null && h.getAccount().getFamilyMember().getCurrency() != null) {
+                    hCurr = h.getAccount().getFamilyMember().getCurrency();
+                }
             }
             
             // Resolve countryCode via Ticker table
@@ -333,8 +337,12 @@ public class PortfolioSnapshotService {
 
                             // Determine holding currency
                             Currency hCurr = Currency.INR;
-                            if (h.getAccount() != null && h.getAccount().getFamilyMember() != null && h.getAccount().getFamilyMember().getCurrency() != null) {
-                                hCurr = h.getAccount().getFamilyMember().getCurrency();
+                            if (h.getAccount() != null) {
+                                if (h.getAccount().getCurrency() != null) {
+                                    hCurr = h.getAccount().getCurrency();
+                                } else if (h.getAccount().getFamilyMember() != null && h.getAccount().getFamilyMember().getCurrency() != null) {
+                                    hCurr = h.getAccount().getFamilyMember().getCurrency();
+                                }
                             }
                             
                             // Resolve countryCode via pre-fetched Ticker table

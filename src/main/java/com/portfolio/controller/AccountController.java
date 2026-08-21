@@ -42,6 +42,7 @@ public class AccountController {
         account.setName(dto.name());
         account.setType(dto.type());
         account.setBalance(dto.balance());
+        account.setCurrency(dto.currency());
         if (dto.familyMemberId() != null) {
             FamilyMember fm = new FamilyMember();
             fm.setId(dto.familyMemberId());
@@ -56,6 +57,7 @@ public class AccountController {
         account.setName(dto.name());
         account.setType(dto.type());
         account.setBalance(dto.balance());
+        account.setCurrency(dto.currency());
         if (dto.familyMemberId() != null) {
             FamilyMember fm = new FamilyMember();
             fm.setId(dto.familyMemberId());

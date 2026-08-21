@@ -2,6 +2,7 @@ package com.portfolio.dto;
 
 import com.portfolio.entity.Account;
 import com.portfolio.entity.AccountType;
+import com.portfolio.entity.Currency;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ public record AccountDto(
     String name,
     AccountType type,
     BigDecimal balance,
+    Currency currency,
     AccountFamilyMemberDto familyMember,
     LocalDateTime createdAt
 ) {
@@ -20,6 +22,7 @@ public record AccountDto(
             account.getName(),
             account.getType(),
             account.getBalance(),
+            account.getCurrency(),
             AccountFamilyMemberDto.from(account.getFamilyMember()),
             account.getCreatedAt()
         );

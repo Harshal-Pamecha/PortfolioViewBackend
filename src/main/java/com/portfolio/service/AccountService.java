@@ -88,8 +88,10 @@ public class AccountService {
         }
 
         if (account.getFamilyMember() != null && account.getFamilyMember().getId() != null) {
-            if (repository.existsByNameAndFamilyMemberIdAndUserId(account.getName(), account.getFamilyMember().getId(),
-                    userId)) {
+            List<Account> existingAccounts = repository.findByFamilyMemberIdAndUserId(account.getFamilyMember().getId(), userId);
+            boolean exists = existingAccounts.stream()
+                .anyMatch(a -> a.getName().equalsIgnoreCase(account.getName()));
+            if (exists) {
                 throw new IllegalArgumentException(
                         "An account with the name '" + account.getName() + "' already exists for this family member.");
             }
@@ -157,8 +159,10 @@ public class AccountService {
         }
 
         if (account.getFamilyMember() != null && account.getFamilyMember().getId() != null) {
-            if (repository.existsByNameAndFamilyMemberIdAndUserIdAndIdNot(account.getName(),
-                    account.getFamilyMember().getId(), userId, id)) {
+            List<Account> existingAccounts = repository.findByFamilyMemberIdAndUserId(account.getFamilyMember().getId(), userId);
+            boolean exists = existingAccounts.stream()
+                .anyMatch(a -> !a.getId().equals(id) && a.getName().equalsIgnoreCase(account.getName()));
+            if (exists) {
                 throw new IllegalArgumentException(
                         "An account with the name '" + account.getName() + "' already exists for this family member.");
             }
@@ -176,6 +180,7 @@ public class AccountService {
 
         existing.setName(account.getName());
         existing.setType(account.getType());
+        existing.setCurrency(account.getCurrency());
 
         AccountType type = existing.getType();
         boolean isCashAccount = (type == AccountType.BANK || type == AccountType.WALLET);

@@ -209,7 +209,7 @@ public class HoldingServiceImpl implements HoldingService {
                 if ("US".equals(existing.getCountryCode())) {
                     holdingCurrency = Currency.USD;
                 }
-                Currency accountCurrency = existing.getAccount().getFamilyMember() != null && existing.getAccount().getFamilyMember().getCurrency() != null ? existing.getAccount().getFamilyMember().getCurrency() : Currency.INR;
+                Currency accountCurrency = existing.getAccount().getCurrency() != null ? existing.getAccount().getCurrency() : (existing.getAccount().getFamilyMember() != null && existing.getAccount().getFamilyMember().getCurrency() != null ? existing.getAccount().getFamilyMember().getCurrency() : Currency.INR);
                 BigDecimal localRefundAmount = currencyService.convert(refundAmount, holdingCurrency, accountCurrency);
 
                 refundTx = new Transaction();
@@ -258,7 +258,7 @@ public class HoldingServiceImpl implements HoldingService {
                     if ("US".equals(holding.getCountryCode())) {
                         holdingCurrency = Currency.USD;
                     }
-                    Currency accountCurrency = holding.getAccount().getFamilyMember() != null && holding.getAccount().getFamilyMember().getCurrency() != null ? holding.getAccount().getFamilyMember().getCurrency() : Currency.INR;
+                    Currency accountCurrency = holding.getAccount().getCurrency() != null ? holding.getAccount().getCurrency() : (holding.getAccount().getFamilyMember() != null && holding.getAccount().getFamilyMember().getCurrency() != null ? holding.getAccount().getFamilyMember().getCurrency() : Currency.INR);
                     BigDecimal localRefundAmount = currencyService.convert(refundAmount, holdingCurrency, accountCurrency);
 
                     Transaction refundTx = new Transaction();
@@ -339,7 +339,7 @@ public class HoldingServiceImpl implements HoldingService {
         if ("US".equals(target.getCountryCode())) {
             holdingCurrency = Currency.USD;
         }
-        Currency accountCurrency = target.getAccount().getFamilyMember() != null && target.getAccount().getFamilyMember().getCurrency() != null ? target.getAccount().getFamilyMember().getCurrency() : Currency.INR;
+        Currency accountCurrency = target.getAccount().getCurrency() != null ? target.getAccount().getCurrency() : (target.getAccount().getFamilyMember() != null && target.getAccount().getFamilyMember().getCurrency() != null ? target.getAccount().getFamilyMember().getCurrency() : Currency.INR);
         
         BigDecimal localProceeds = currencyService.convert(proceeds, holdingCurrency, accountCurrency);
         BigDecimal localRealizedPnl = currencyService.convert(realizedPnl, holdingCurrency, accountCurrency);
